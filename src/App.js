@@ -1,25 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+// App.js
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Home from './components/Home';
+import Login from './components/login';
+import { CartProvider } from './components/CartContext';
 
-function App() {
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState('');
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Router>
+        <CartProvider>
+        <Routes>     
+          <Route
+            path="/login"
+            element={<Login setIsAuthenticated={setIsAuthenticated} setToken={setToken} />}
+          />          
+          <Route
+            path="/"
+            element={
+             isAuthenticated || token ? (
+                <Home setIsAuthenticated={setIsAuthenticated} token={token} setToken={setToken} />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+        </Routes>   
+        </CartProvider>
+      </Router>
+   
   );
-}
+};
 
 export default App;
